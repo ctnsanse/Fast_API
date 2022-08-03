@@ -1,7 +1,7 @@
 from models import User, sexe, Role
-from uuid import uuid4, UUID
+from uuid import UUID
 from typing import List
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 app = FastAPI()
 
@@ -15,7 +15,7 @@ db: List[User] = [
         roles = [Role.admin]
     ),
     User(
-        id=uuid4(),
+        id=("d8c047b3-5acc-44cb-9a77-39ff8140bc88"),
         first_name = "Duvensky",
         last_name = "Ozil",
         sexe = sexe.femminin,
@@ -37,3 +37,15 @@ async def fetch_users():
 @app.post("/api/v1/users")
 async def register_user(user: User): 
     db.append(user)
+    return {"id" : user.id}
+
+@app.delete("/api/v1/user/{user_id}")
+async def delete_user(user_id: UUID):
+    for user in db:
+        if user.id == user_id:
+            db.remove(user)
+            return
+    raise HTTPException(
+        status_code = 404,
+        detail = "L'utilisateur de cet ID : {user_id} n'éxiste pas."
+    )
